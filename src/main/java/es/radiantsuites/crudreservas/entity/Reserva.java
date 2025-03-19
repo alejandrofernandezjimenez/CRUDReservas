@@ -19,23 +19,26 @@ public class Reserva {
     @Column(name = "check_out")
     private LocalDate checkOut;
 
-    @Column(name = "id_cliente")
-    private Integer idCliente;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_cliente", nullable = false)
+    private Cliente cliente;
 
-    @Column(name = "id_habitacion")
-    private Integer idHabitacion;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_habitacion", nullable = false)
+    private Habitacion habitacion;
 
     public Reserva() {
     }
 
-    public Reserva(LocalDate checkIn, LocalDate checkOut, Integer idCliente, Integer idHabitacion) {
+    public Reserva(LocalDate checkIn, LocalDate checkOut, Cliente cliente, Habitacion habitacion) {
         this.checkIn = checkIn;
         this.checkOut = checkOut;
-        this.idCliente = idCliente;
-        this.idHabitacion = idHabitacion;
+        this.cliente = cliente;
+        this.habitacion = habitacion;
     }
 
-    public int getIdReserva() {
+    // Getters y Setters
+    public Integer getIdReserva() {
         return idReserva;
     }
 
@@ -59,19 +62,30 @@ public class Reserva {
         this.checkOut = checkOut;
     }
 
-    public int getIdCliente() {
-        return idCliente;
+    public Cliente getCliente() {
+        return cliente;
     }
 
-    public void setIdCliente(Integer idCliente) {
-        this.idCliente = idCliente;
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
     }
 
-    public int getIdHabitacion() {
-        return idHabitacion;
+    public Habitacion getHabitacion() {
+        return habitacion;
     }
 
-    public void setIdHabitacion(Integer idHabitacion) {
-        this.idHabitacion = idHabitacion;
+    public void setHabitacion(Habitacion habitacion) {
+        this.habitacion = habitacion;
+    }
+
+    @Override
+    public String toString() {
+        return "Reserva{" +
+                "idReserva=" + idReserva +
+                ", checkIn=" + checkIn +
+                ", checkOut=" + checkOut +
+                ", cliente=" + (cliente != null ? cliente.getIdCliente() : null) +
+                ", habitacion=" + (habitacion != null ? habitacion.getIdHabitacion() : null) +
+                '}';
     }
 }

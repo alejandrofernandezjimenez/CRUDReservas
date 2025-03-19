@@ -1,5 +1,7 @@
 package es.radiantsuites.crudreservas.service;
 
+import es.radiantsuites.crudreservas.entity.Cliente;
+import es.radiantsuites.crudreservas.entity.Habitacion;
 import es.radiantsuites.crudreservas.entity.Reserva;
 import es.radiantsuites.crudreservas.repository.ReservaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,32 +17,29 @@ public class ReservaService {
     @Autowired
     private ReservaRepository reservaRepository;
 
-    // Crear una nueva reserva
     public Reserva crearReserva(Reserva reserva) {
-        // Validación: check-out debe ser posterior a check-in
         if (reserva.getCheckOut() != null && reserva.getCheckIn() != null && reserva.getCheckOut().isBefore(reserva.getCheckIn())) {
             throw new IllegalArgumentException("La fecha de check-out debe ser posterior a la fecha de check-in");
         }
-        // Verificar si ya existe una reserva para el mismo cliente y habitación
-        if (reservaRepository.existsByIdClienteAndIdHabitacion(reserva.getIdCliente(), reserva.getIdHabitacion())) {
-            throw new IllegalStateException("Ya existe una reserva para este cliente y habitación");
+        Cliente cliente = reserva.getCliente();
+        Habitacion habitacion = reserva.getHabitacion();
+        if (cliente == null || habitacion == null) {
+            throw new IllegalArgumentException("Cliente y habitación son obligatorios");
         }
+
         return reservaRepository.save(reserva);
     }
 
-    // Obtener una reserva por ID
     public Optional<Reserva> obtenerReservaPorId(Integer id) {
         return reservaRepository.findById(id);
     }
 
-    // Actualizar una reserva existente
     public Reserva actualizarReserva(Integer id, Reserva reservaActualizada) {
         return reservaRepository.findById(id).map(reserva -> {
             reserva.setCheckIn(reservaActualizada.getCheckIn());
             reserva.setCheckOut(reservaActualizada.getCheckOut());
-            reserva.setIdCliente(reservaActualizada.getIdCliente());
-            reserva.setIdHabitacion(reservaActualizada.getIdHabitacion());
-            // Validación de fechas
+            reserva.setCliente(reservaActualizada.getCliente());
+            reserva.setHabitacion(reservaActualizada.getHabitacion());
             if (reserva.getCheckOut() != null && reserva.getCheckIn() != null && reserva.getCheckOut().isBefore(reserva.getCheckIn())) {
                 throw new IllegalArgumentException("La fecha de check-out debe ser posterior a la fecha de check-in");
             }
@@ -48,7 +47,6 @@ public class ReservaService {
         }).orElseThrow(() -> new IllegalArgumentException("Reserva no encontrada con ID: " + id));
     }
 
-    // Eliminar una reserva
     public void eliminarReserva(Integer id) {
         if (!reservaRepository.existsById(id)) {
             throw new IllegalArgumentException("Reserva no encontrada con ID: " + id);
@@ -56,7 +54,6 @@ public class ReservaService {
         reservaRepository.deleteById(id);
     }
 
-    // Listar todas las reservas
     public List<Reserva> listarReservas() {
         return reservaRepository.findAll();
     }
