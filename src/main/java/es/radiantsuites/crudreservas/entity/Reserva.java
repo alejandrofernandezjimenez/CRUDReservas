@@ -19,11 +19,11 @@ public class Reserva {
     @Column(name = "check_out")
     private LocalDate checkOut;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_cliente", nullable = false)
     private Cliente cliente;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_habitacion", nullable = false)
     private Habitacion habitacion;
 
