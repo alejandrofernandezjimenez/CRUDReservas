@@ -1,5 +1,4 @@
 
-
 import es.radiantsuites.crudreservas.entity.Cliente;
 import es.radiantsuites.crudreservas.entity.Habitacion;
 import es.radiantsuites.crudreservas.entity.Reserva;
@@ -62,7 +61,7 @@ class ReservaServiceTest {
     void crearReserva_success() {
         // Arrange: Configurar el comportamiento del mock
         when(reservaRepository.existsByHabitacionAndCheckInLessThanEqualAndCheckOutGreaterThanEqual(
-                habitacion, checkIn, checkOut)).thenReturn(false); // Habitación disponible
+                habitacion, checkOut, checkIn)).thenReturn(false); // Habitación disponible
         when(reservaRepository.save(any(Reserva.class))).thenReturn(reserva);
 
         // Act: Llamar al método a probar
@@ -78,7 +77,7 @@ class ReservaServiceTest {
 
         // Verificar interacciones con el mock
         verify(reservaRepository).existsByHabitacionAndCheckInLessThanEqualAndCheckOutGreaterThanEqual(
-                habitacion, checkIn, checkOut);
+                habitacion, checkOut, checkIn);
         verify(reservaRepository).save(reserva);
     }
 
@@ -86,7 +85,7 @@ class ReservaServiceTest {
     void crearReserva_roomNotAvailable_throwsException() {
         // Arrange: Simular que la habitación está ocupada
         when(reservaRepository.existsByHabitacionAndCheckInLessThanEqualAndCheckOutGreaterThanEqual(
-                habitacion, checkIn, checkOut)).thenReturn(true);
+                habitacion, checkOut, checkIn)).thenReturn(true);
 
         // Act & Assert: Verificar que se lanza la excepción
         IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
@@ -97,7 +96,7 @@ class ReservaServiceTest {
 
         // Verificar interacciones
         verify(reservaRepository).existsByHabitacionAndCheckInLessThanEqualAndCheckOutGreaterThanEqual(
-                habitacion, checkIn, checkOut);
+                habitacion, checkOut, checkIn);
         verify(reservaRepository, never()).save(any(Reserva.class));
     }
 
