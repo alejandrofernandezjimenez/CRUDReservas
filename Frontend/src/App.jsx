@@ -1,6 +1,5 @@
 import React from 'react';
-import ReservaForm from './components/ReservaForm'; // Asegúrate de que la ruta sea correcta
-import './App.css'; // Opcional, para estilos
+import ReservaForm from './components/ReservaForm';
 
 function App() {
   return (

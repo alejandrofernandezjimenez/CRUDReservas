@@ -1,40 +1,50 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import CrearReservaForm from './CrearReservaForm';
+import ListaReservas from './ListaReservas';
 
 function ReservaForm() {
   const [formData, setFormData] = useState({
-    checkIn: "2027-03-25",
-    checkOut: "2027-03-26",
-    idCliente: 1,
-    idHabitacion: 2
+    checkIn: '',
+    checkOut: '',
+    idCliente: '',
+    idHabitacion: ''
   });
 
-  const [error, setError] = useState(null); // Estado para manejar errores
+  const [reservas, setReservas] = useState([]);
+  const [error, setError] = useState(null);
 
-  const handleSubmit = async () => {
-    setError(null); // Reiniciar el error antes de intentar
+  const handleListarReservas = async () => {
+    setError(null);
     try {
-      const response = await axios.post('http://localhost:8080/api/reservas/crear', formData, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      console.log('Respuesta del backend:', response.data);
-      alert('Reserva creada con éxito: ' + response.data);
+      const response = await axios.get('http://localhost:8080/api/reservas/listar');
+      console.log('Datos recibidos del backend:', response.data);
+      setReservas(response.data);
     } catch (error) {
       const errorMessage = error.response
         ? `Error ${error.response.status}: ${error.response.data}`
         : error.message;
-      console.error('Error al crear la reserva:', errorMessage);
-      setError(errorMessage); // Guardar el error para mostrarlo en la UI
+      console.error('Error al listar reservas:', errorMessage);
+      setError(errorMessage);
     }
   };
 
   return (
-    <div>
-      <h2>Crear Reserva</h2>
-      <button onClick={handleSubmit}>Enviar Reserva</button>
-      {error && <p style={{ color: 'red' }}>{error}</p>} {/* Mostrar error en la interfaz */}
+    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+      <CrearReservaForm
+        formData={formData}
+        setFormData={setFormData}
+        error={error}
+        setError={setError}
+      />
+      <button
+        type="button"
+        onClick={handleListarReservas}
+        style={{ padding: '10px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', marginBottom: '20px' }}
+      >
+        Listar Reservas
+      </button>
+      <ListaReservas reservas={reservas} />
     </div>
   );
 }
