@@ -1,17 +1,12 @@
-# Usar una imagen base de Java
-FROM openjdk:17-jdk-alpine
-
-# Email del encargado del dockerfile
-LABEL maintainer="Alejandro y Pablo"
-
-# Establecer el directorio de trabajo dentro del contenedor
+# Etapa 1: build con Maven
+FROM maven:3.9.6-eclipse-temurin-17 AS builder
 WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-# Copiar el archivo JAR de la aplicación al contenedor
-COPY target/crudreservas-0.0.1-SNAPSHOT.jar crudreservas.jar
-
-# Exponer el puerto en el que la aplicación se ejecutará
+# Etapa 2: imagen final liviana
+FROM eclipse-temurin:17-jdk-alpine
+WORKDIR /app
+COPY --from=builder /app/target/crudreservas-0.0.1-SNAPSHOT.jar crudreservas.jar
 EXPOSE 8080
-
-# Comando para ejecutar la aplicación
 ENTRYPOINT ["java", "-jar", "crudreservas.jar"]
