@@ -1,13 +1,12 @@
 package es.radiantsuites.crudreservas.service;
 
-import es.radiantsuites.crudreservas.entity.Cliente;
+import es.radiantsuites.crudreservas.dto.Cliente;
 import es.radiantsuites.crudreservas.entity.Habitacion;
 import es.radiantsuites.crudreservas.entity.Reserva;
 import es.radiantsuites.crudreservas.repository.ReservaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,7 +20,7 @@ public class ReservaService {
         if (reserva.getCheckOut() != null && reserva.getCheckIn() != null && reserva.getCheckOut().isBefore(reserva.getCheckIn())) {
             throw new IllegalArgumentException("La fecha de check-out debe ser posterior a la fecha de check-in");
         }
-        Cliente cliente = reserva.getCliente();
+        Integer cliente = reserva.getIdCliente();
         Habitacion habitacion = reserva.getHabitacion();
         if (cliente == null || habitacion == null) {
             throw new IllegalArgumentException("Cliente y habitación son obligatorios");
@@ -46,7 +45,7 @@ public class ReservaService {
         return reservaRepository.findById(id).map(reserva -> {
             reserva.setCheckIn(reservaActualizada.getCheckIn());
             reserva.setCheckOut(reservaActualizada.getCheckOut());
-            reserva.setCliente(reservaActualizada.getCliente());
+            reserva.setIdCliente(reservaActualizada.getIdCliente());
             reserva.setHabitacion(reservaActualizada.getHabitacion());
             if (reserva.getCheckOut() != null && reserva.getCheckIn() != null && reserva.getCheckOut().isBefore(reserva.getCheckIn())) {
                 throw new IllegalArgumentException("La fecha de check-out debe ser posterior a la fecha de check-in");

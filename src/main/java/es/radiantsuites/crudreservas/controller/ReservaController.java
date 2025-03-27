@@ -1,10 +1,11 @@
 package es.radiantsuites.crudreservas.controller;
 
-import es.radiantsuites.crudreservas.entity.Cliente;
+import es.radiantsuites.crudreservas.dto.Cliente;
+import es.radiantsuites.crudreservas.dto.ReservaConCliente;
 import es.radiantsuites.crudreservas.entity.Habitacion;
 import es.radiantsuites.crudreservas.entity.Reserva;
-import es.radiantsuites.crudreservas.repository.ClienteRepository;
 import es.radiantsuites.crudreservas.repository.HabitacionRepository;
+import es.radiantsuites.crudreservas.service.ClienteService;
 import es.radiantsuites.crudreservas.service.ReservaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/reservas")
@@ -21,7 +23,7 @@ public class ReservaController {
     private ReservaService reservaService;
 
     @Autowired
-    private ClienteRepository clienteRepository;
+    private ClienteService clienteService;
 
     @Autowired
     private HabitacionRepository habitacionRepository;
@@ -71,40 +73,47 @@ public class ReservaController {
     public ResponseEntity<Reserva> crearReserva(@RequestBody ReservaRequest request) {
         try {
             // Buscar el cliente y la habitación por sus IDs
-            Cliente cliente = clienteRepository.findById(request.getIdCliente())
-                    .orElseThrow(() -> new IllegalArgumentException("Cliente no encontrado con ID: " + request.getIdCliente()));
+            Cliente cliente = clienteService.obtenerClientePorId(request.getIdCliente());
             Habitacion habitacion = habitacionRepository.findById(request.getIdHabitacion())
                     .orElseThrow(() -> new IllegalArgumentException("Habitación no encontrada con ID: " + request.getIdHabitacion()));
-            System.out.println(cliente);
-            System.out.println(habitacion);
+            System.out.println("test");
             // Crear la reserva
             Reserva reserva = new Reserva();
             reserva.setCheckIn(request.getCheckIn());
             reserva.setCheckOut(request.getCheckOut());
-            reserva.setCliente(cliente);
+            reserva.setIdCliente(cliente.getIdCliente());
             reserva.setHabitacion(habitacion);
             System.out.println(reserva);
 
             Reserva nuevaReserva = reservaService.crearReserva(reserva);
+            System.out.println("TIENE BUENA PINTA");
             return ResponseEntity.ok(nuevaReserva);
         } catch (IllegalArgumentException | IllegalStateException e) {
+            System.out.println("MAL ROLLO TIO");
             return ResponseEntity.badRequest().body(null);
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Reserva> obtenerReserva(@PathVariable Integer id) {
-        return reservaService.obtenerReservaPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ReservaConCliente> obtenerReserva(@PathVariable Integer id) {
+        Optional<Reserva> reservaOpt = reservaService.obtenerReservaPorId(id);
+
+        if (reservaOpt.isPresent()) {
+            Reserva reserva = reservaOpt.get();
+            Cliente cliente = clienteService.obtenerClientePorId(reserva.getIdCliente());
+            ReservaConCliente combinado = new ReservaConCliente(reserva, cliente);
+            return ResponseEntity.ok(combinado);
+        }
+
+        return ResponseEntity.notFound().build();
     }
+
 
     @PutMapping("/actualizar/{id}")
     public ResponseEntity<Reserva> actualizarReserva(@PathVariable Integer id, @RequestBody ReservaRequest request) {
         try {
             // Buscar el cliente y la habitación por sus IDs
-            Cliente cliente = clienteRepository.findById(request.getIdCliente())
-                    .orElseThrow(() -> new IllegalArgumentException("Cliente no encontrado con ID: " + request.getIdCliente()));
+            Cliente cliente = clienteService.obtenerClientePorId(request.getIdCliente());
             Habitacion habitacion = habitacionRepository.findById(request.getIdHabitacion())
                     .orElseThrow(() -> new IllegalArgumentException("Habitación no encontrada con ID: " + request.getIdHabitacion()));
 
@@ -112,7 +121,7 @@ public class ReservaController {
             Reserva reservaActualizada = new Reserva();
             reservaActualizada.setCheckIn(request.getCheckIn());
             reservaActualizada.setCheckOut(request.getCheckOut());
-            reservaActualizada.setCliente(cliente);
+            reservaActualizada.setIdCliente(cliente.getIdCliente());
             reservaActualizada.setHabitacion(habitacion);
 
             Reserva reserva = reservaService.actualizarReserva(id, reservaActualizada);
@@ -133,8 +142,16 @@ public class ReservaController {
     }
 
     @GetMapping("/listar")
-    public ResponseEntity<List<Reserva>> listarReservas() {
+    public ResponseEntity<List<ReservaConCliente>> listarReservasConCliente() {
         List<Reserva> reservas = reservaService.listarReservas();
-        return ResponseEntity.ok(reservas);
+        List<ReservaConCliente> combinadas = reservas.stream()
+                .map(reserva -> new ReservaConCliente(
+                        reserva,
+                        clienteService.obtenerClientePorId(reserva.getIdCliente())
+                ))
+                .toList();
+
+        return ResponseEntity.ok(combinadas);
     }
+
 }

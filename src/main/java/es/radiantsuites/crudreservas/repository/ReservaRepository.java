@@ -1,11 +1,9 @@
 package es.radiantsuites.crudreservas.repository;
 
-import es.radiantsuites.crudreservas.entity.Cliente;
+import es.radiantsuites.crudreservas.dto.Cliente;
 import es.radiantsuites.crudreservas.entity.Habitacion;
 import es.radiantsuites.crudreservas.entity.Reserva;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -14,21 +12,6 @@ import java.util.Optional;
 
 @Repository
 public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
-
-    // Buscar todas las reservas de un cliente específico
-    List<Reserva> findByCliente(Cliente cliente);
-
-    // Buscar todas las reservas de una habitación específica
-    List<Reserva> findByHabitacion(Habitacion habitacion);
-
-    // Buscar reservas dentro de un rango de fechas de check-in
-    List<Reserva> findByCheckInBetween(LocalDate startDate, LocalDate endDate);
-
-    // Buscar una reserva específica por cliente y habitación
-    Optional<Reserva> findByClienteAndHabitacion(Cliente cliente, Habitacion habitacion);
-
-    // Verificar si existe una reserva para un cliente y habitación específicos
-    boolean existsByClienteAndHabitacion(Cliente cliente, Habitacion habitacion);
 
     // Verificar si una habitación está reservada en un rango de fechas
     boolean existsByHabitacionAndCheckInLessThanEqualAndCheckOutGreaterThanEqual(Habitacion habitacion, LocalDate checkOut, LocalDate checkIn);

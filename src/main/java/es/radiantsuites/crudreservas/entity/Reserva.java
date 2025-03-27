@@ -1,5 +1,6 @@
 package es.radiantsuites.crudreservas.entity;
 
+import es.radiantsuites.crudreservas.dto.Cliente;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -19,9 +20,8 @@ public class Reserva {
     @Column(name = "check_out")
     private LocalDate checkOut;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_cliente", nullable = false)
-    private Cliente cliente;
+    @Column(name = "id_cliente", nullable = false)
+    private Integer idCliente;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_habitacion", nullable = false)
@@ -30,10 +30,10 @@ public class Reserva {
     public Reserva() {
     }
 
-    public Reserva(LocalDate checkIn, LocalDate checkOut, Cliente cliente, Habitacion habitacion) {
+    public Reserva(LocalDate checkIn, LocalDate checkOut, Integer idCliente, Habitacion habitacion) {
         this.checkIn = checkIn;
         this.checkOut = checkOut;
-        this.cliente = cliente;
+        this.idCliente = idCliente;
         this.habitacion = habitacion;
     }
 
@@ -62,12 +62,12 @@ public class Reserva {
         this.checkOut = checkOut;
     }
 
-    public Cliente getCliente() {
-        return cliente;
+    public Integer getIdCliente() {
+        return idCliente;
     }
 
-    public void setCliente(Cliente cliente) {
-        this.cliente = cliente;
+    public void setIdCliente(Integer idCliente) {
+        this.idCliente = idCliente;
     }
 
     public Habitacion getHabitacion() {
@@ -84,8 +84,8 @@ public class Reserva {
                 "idReserva=" + idReserva +
                 ", checkIn=" + checkIn +
                 ", checkOut=" + checkOut +
-                ", cliente=" + (cliente != null ? cliente.getIdCliente() : null) +
-                ", habitacion=" + (habitacion != null ? habitacion.getIdHabitacion() : null) +
+                ", idCliente=" + idCliente +
+                ", habitacion=" + habitacion +
                 '}';
     }
 }
