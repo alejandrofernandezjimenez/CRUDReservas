@@ -308,4 +308,36 @@ public class ReservaController {
 
 
 
+    @GetMapping("/habitaciones-disponibles")
+    public ResponseEntity<List<HabitacionResumen>> obtenerHabitacionesDisponiblesPorFechas(
+            @RequestParam LocalDate checkIn,
+            @RequestParam LocalDate checkOut) {
+
+        // Obtener todas las habitaciones disponibles y sin mantenimiento
+        List<Habitacion> todasDisponibles = habitacionRepository.findAll().stream()
+                .filter(h -> Boolean.TRUE.equals(h.getDisponible()) && Boolean.FALSE.equals(h.getMantenimiento()))
+                .toList();
+
+        // Obtener reservas que se superpongan con el rango de fechas
+        List<Reserva> reservasSolapadas = reservaService.listarReservas().stream()
+                .filter(r ->
+                        !(checkOut.isBefore(r.getCheckIn()) || checkIn.isAfter(r.getCheckOut()))
+                ).toList();
+
+        // IDs de habitaciones ocupadas en ese rango
+        List<Integer> habitacionesOcupadas = reservasSolapadas.stream()
+                .map(r -> r.getHabitacion().getIdHabitacion())
+                .toList();
+
+        // Filtrar habitaciones disponibles que no estén en la lista de ocupadas
+        List<HabitacionResumen> disponibles = todasDisponibles.stream()
+                .filter(h -> !habitacionesOcupadas.contains(h.getIdHabitacion()))
+                .map(h -> new HabitacionResumen(h.getIdHabitacion(), h.getNumero()))
+                .toList();
+
+        return ResponseEntity.ok(disponibles);
+}
+
+
+
 }
