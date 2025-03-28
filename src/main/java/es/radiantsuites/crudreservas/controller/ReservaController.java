@@ -154,4 +154,40 @@ public class ReservaController {
         return ResponseEntity.ok(combinadas);
     }
 
+
+
+    @GetMapping("/habitaciones")
+    public ResponseEntity<List<HabitacionResumen>> listarHabitacionesDisponibles() {
+        List<Habitacion> habitaciones = habitacionRepository.findAll();
+
+        // Convertimos a DTO simple
+        List<HabitacionResumen> resultado = habitaciones.stream()
+            .filter(h -> Boolean.TRUE.equals(h.getDisponible()) && Boolean.FALSE.equals(h.getMantenimiento()))
+            .sorted((h1, h2) -> h1.getNumero().compareTo(h2.getNumero()))
+            .map(h -> new HabitacionResumen(h.getIdHabitacion(), h.getNumero()))
+            .toList();
+
+        return ResponseEntity.ok(resultado);
+    }
+
+    // DTO interno para enviar solo lo necesario
+    public static class HabitacionResumen {
+        private Integer id;
+        private Integer numero;
+
+        public HabitacionResumen(Integer id, Integer numero) {
+            this.id = id;
+            this.numero = numero;
+        }
+
+        public Integer getId() {
+            return id;
+        }
+
+        public Integer getNumero() {
+            return numero;
+        }
+    }
+
+
 }
