@@ -15,7 +15,7 @@ public class ClienteService {
     }
 
     public Cliente obtenerClientePorId(Integer id){
-        String url = "https://crudclientes.onrender.com/clientes/" + id;
+        String url = "https://d1kyl7ajtmjgoz.cloudfront.net/clientes/" + id;
         System.out.println(url);
         return restTemplate.getForObject(url, Cliente.class);
     }
